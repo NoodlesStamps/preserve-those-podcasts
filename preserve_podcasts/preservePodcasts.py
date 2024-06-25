@@ -128,15 +128,21 @@ def download_episode(session: requests.Session, url: str, *, guid: str, episode_
     to_download = True
     possible_sizes = [possible_size]
 
-    ep_uploaded_mark_file_path= episode_dir / _uploaded.mark
+    ep_uploaded_mark_file_path= episode_dir / "_uploaded.mark"
     ep_audio_file_path = episode_dir / filename
     ep_audio_meta_path = episode_dir / (filename + '.metadata.json')
+    if os.path.exists(ep_uploaded_mark_file_path):
+        print('File already Uploaded')
+        to_download = False
+        return
+        
     if ep_audio_meta_path.exists():
         with open(ep_audio_meta_path, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
             possible_sizes.append(metadata['http-content-length']) if 'http-content-length' in metadata else None
+            
 
-    if os.path.exists(ep_audio_file_path) and os.path.exists(ep_uploaded_mark_file_path) and os.path.getsize(ep_audio_file_path) in possible_sizes:
+    if os.path.exists(ep_audio_file_path) and os.path.getsize(ep_audio_file_path) in possible_sizes:
         print('File already exists')
         to_download = False
         return
